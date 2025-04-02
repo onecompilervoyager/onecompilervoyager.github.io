@@ -238,12 +238,14 @@
   <button class="dark-mode-toggle" onclick="toggleDarkMode()">Dark Mode 🌙</button>
   <div class="title" id="webVoyagerTitle">Web Voyager v1.5 🚀</div>
   <div class="container">
+  <div id="output"></div>
     <input type="password" placeholder="Enter Password" id="passwordInput" />
     <input type="text" placeholder="Enter website URL (http:// or https://)" id="inputId" class="inputClass" style="display: none;" />
     <button type="button" id="enterButton" onclick="checkPassword()">Enter</button>
     <button type="button" onclick="openWebsite()" style="display: none;">Explore🔎</button>
     <button type="button" onclick="openGoogle()" style="display: none;">Google🌎</button>
     <button type="button" onclick="openEmerald()" style="display: none;">Emerald🍀</button>
+    <button onclick="fetchData()">Fetch Data</button>
     <button type="button" onclick="openPokerogue()" style="display: none;">Pokerogue🎲</button>
     <div id="error-message"></div>
   </div>
@@ -406,9 +408,46 @@
     }
     
     initBubbles();
+    
+    
+    function fetchData() {
+      const apiUrl = 'https://api.ipify.org/?format=json';
+      const outputDiv = document.getElementById('output');
+
+      // Clear any previous output
+      outputDiv.innerHTML = '<p>Loading data...</p>';
+
+      fetch(apiUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.json(); // Assuming the API returns JSON
+        })
+        .then(data => {
+          // Process the received data and display it
+          let outputHTML = '<h2>Data Received:</h2><ul>';
+          if (Array.isArray(data)) {
+            data.forEach(item => {
+              outputHTML += `<li>${JSON.stringify(item)}</li>`; // Display each item as a JSON string for simplicity
+            });
+          } else if (typeof data === 'object' && data !== null) {
+            for (const key in data) {
+              if (data.hasOwnProperty(key)) {
+                outputHTML += `<li><strong>${key}:</strong> ${JSON.stringify(data[key])}</li>`;
+              }
+            }
+          } else {
+            outputHTML = `<p>Data: ${data}</p>`; // Handle primitive data types
+          }
+          outputHTML += '</ul>';
+          outputDiv.innerHTML = outputHTML;
+        })
+        .catch(error => {
+          outputDiv.innerHTML = `<p style="color: red;">Error fetching data: ${error.message}</p>`;
+        });
+    }
+
   </script>
 </body>
 </html>
-
-
-
